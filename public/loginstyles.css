@@ -1,0 +1,61 @@
+.SaludoText{
+    color: #072146;
+}
+main{
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+}
+form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 250px;
+    min-height: 300px;
+    height: 5rem;
+    width: 5rem;
+}
+input[type="text"],input[type="password"]{
+    transition: .5s all;
+    border: 0px;
+    border-radius: 5px;
+    margin: 20px;
+    padding: 10px;
+    width: 80%;
+    background-color: #e7e7e7;
+    box-shadow: 1px 2px 5px 0px #00000031;
+}
+input[type="text"]:focus,input[type="password"]:focus{
+    outline: none;
+    border: none;
+    background-color: #ffffff;
+    box-shadow: 1px 2px 5px 0px #00000031;
+}
+input[type="text"]:hover,input[type="password"]:hover{
+    background-color: #cccccc;
+    box-shadow: 1px 2px 5px 0px #00000031;
+}
+input[type="submit"]{
+    transition: .5s all;
+    border: none;
+    border-radius: 5px;
+    margin: 10px;
+    padding: 10px;
+    width: 87%;
+    background-color: #043263;
+    color: white;
+    box-shadow: 1px 2px 5px 0px #00000031;
+}
+input[type="submit"]:hover{
+    cursor: pointer;
+    background-color: #144892;
+    box-shadow: 1px 2px 5px 0px #00000031;
+}
+/* Para pantallas de tamaño medio (tablets, 768px y arriba) */
+@media (min-width: 268px) {  
+    form{
+        width: 30%; /* Ajusta este valor a tus necesidades */
+        height: 60%;
+    }
+}
