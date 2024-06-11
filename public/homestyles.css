@@ -86,6 +86,9 @@ section,div{
     text-align: center;
 
 }
+.welcomeTitle{
+    display: flex;
+}
 @media (max-width: 468px) {
 
     .bottomInteractiveBox{

@@ -9,21 +9,46 @@ import Layout from '../layouts/Layout.astro';
             <h1 class="SaludoText">
                 ¡Hola de nuevo!
             </h1>
-            <input type="text" name="Usuario" id="Usuario" placeholder="Usuario">
-            <input type="password" name="Contraseña" id="Contraseña" placeholder="Contraseña">
-            <input type="submit" value="Iniciar Sesión">
+            <input type="text" name="Usuario" id="Usuario" placeholder="Usuario" required>
+            <input type="password" name="Contraseña" id="Contraseña" placeholder="Contraseña" required>
+            <button type="submit" class="submit">Iniciar Sesión</button>
         </form>
     </main>
     <script>
+        const ApiUrl = "https://atbapi.websitos256.com/api/";
         document.querySelector("form").addEventListener("submit", (e) => {
             e.preventDefault();
-            if(document.querySelector("#Usuario").value != "" && document.querySelector("#Contraseña").value != "")
-                window.location.href = "/home.html";
-            else{
-
+            let user = document.querySelector("#Usuario").value;
+            let password = document.querySelector("#Contraseña").value;
+            Login(user,password);
+        });
+        async function Login(user, password){
+        try {
+            let data = {
+                "email": user,
+                "password": password
             }
+            let response = await fetch(ApiUrl + "Login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json; charset=UTF-8"
+                },
+                body: JSON.stringify(data)
+            });
             
-        }); 
+            if(response.status == 200){
+                let JWTToken = await response.text();
+                localStorage.setItem("token",JWTToken);
+                window.location.href = "/home";
+            }
+            else{
+                alert("Usuario o contraseña incorrectos");
+            }
+        }
+        catch (error) {
+                console.log('Error:', error);
+        }
+    }
     </script>
     <footer>
 

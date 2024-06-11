@@ -5,7 +5,7 @@ import Layout from "../layouts/Layout.astro"
 <Layout title="Home">
     <main>
         <div class="infoContainer">
-            <h2>Bienvenido Victor.</h2>   
+            <h2 class="welcomeTitle">Bienvenido <h2 class="nombre" id="nombre">Nombre</h2></h2>   
             <h3>Te encuentras en la caja 3</h3>
         </div>
         <section class="boxContainer">
@@ -46,9 +46,56 @@ import Layout from "../layouts/Layout.astro"
                 </div>
             </div>
         </section>
-        <script>
-    
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.7/signalr.min.js" is:inline></script>
+        <script is:inline>
+            let JWTToken = localStorage.getItem('token');
+            const TituloNombre = document.querySelector('#nombre');
+            if(JWTToken == null || JWTToken == undefined){
+                window.location.href = "/index";
+            }
+            else{
+                let decodedToken = parseJwt(JWTToken);
+                let Rol = decodedToken.role;
+                if(Rol != "Cajero" && Rol != "Admin" || Rol == null || Rol == undefined){
+                    window.location.href = "/Index";
+                }
+                let IdUsuario = decodedToken.id;
+                let Nombre = decodedToken.unique_name;
+                TituloNombre.textContent = Nombre;
+                console.log(parseJwt(JWTToken));
+                
+            }
+            function parseJwt(token) {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                return JSON.parse(jsonPayload);
+            }
         </script>
+        <script is:inline>
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("https://localhost:7069/tickets")
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
+            async function IniciarConexion(){
+                try {
+                    await connection.start();
+                    console.log("Conexión establecida");
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+            connection.onclose(async () => {
+                await IniciarConexion();
+            });
+            IniciarConexion();
+        </script>
+</main>
+<footer>
+
+</footer>
+</Layout>
     </main>
     <footer>
     
