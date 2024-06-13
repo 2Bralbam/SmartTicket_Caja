@@ -26,12 +26,27 @@ const { title } = Astro.props;
 				<h1>Smart Ticket</h1>
 			</a>
 			<div>
-	
+				<a href="index.html" id="closeSesion">Cerrar Sesión</a>]
 			</div>
 		</header>
 		<slot transition:animate={fade({ duration: '0.4s' })}/>
 	</body>
 </html>
+<script is:inline>
+	const closeSesion = document.getElementById('closeSesion');
+	let userId = localStorage.getItem('IdUsuario');
+	if (userId) {
+		closeSesion.style.visibility = 'visible';
+	}
+	else {
+		closeSesion.style.visibility = 'hidden';
+	}
+	closeSesion.addEventListener('click', () => {
+		localStorage.removeItem('token');
+		localStorage.removeItem('IdUsuario');
+		window.location.href = '/Index';
+	});
+</script>
 <style is:global>
 	
 	code {
@@ -44,5 +59,9 @@ const { title } = Astro.props;
 			Bitstream Vera Sans Mono,
 			Courier New,
 			monospace;
+	}
+	header {
+		display: flex;
+		justify-content: space-between;
 	}
 </style>

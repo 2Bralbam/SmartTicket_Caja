@@ -20,18 +20,21 @@ import Layout from "../layouts/Layout.astro"
                     <p class="ticketTurno">
                         A001
                     </p>
+                    <p>
+                        Turnos pendientes: <p class="turnosPendientes">20</p>
+                    </p>
                 </button>  
             </div>
             <div class="bottomInteractiveBox">
                 <div class="secondInteractiveBox">
                     <div class="boxHeader">
                         <h1 class="boxTitle">
-                            Cerrar caja
+                            Cancelar
                         </h1>
                         
                     </div>
                     <button class="content">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="148" height="148" viewBox="0 0 24 24"><path fill="#043263" d="m12 13.4l2.9 2.9q.275.275.7.275t.7-.275t.275-.7t-.275-.7L13.4 12l2.9-2.9q.275-.275.275-.7t-.275-.7t-.7-.275t-.7.275L12 10.6L9.1 7.7q-.275-.275-.7-.275t-.7.275t-.275.7t.275.7l2.9 2.9l-2.9 2.9q-.275.275-.275.7t.275.7t.7.275t.7-.275zm0 8.6q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" onclick="CancelarTicket()" width="148" height="148" viewBox="0 0 24 24"><path fill="#043263" d="m12 13.4l2.9 2.9q.275.275.7.275t.7-.275t.275-.7t-.275-.7L13.4 12l2.9-2.9q.275-.275.275-.7t-.275-.7t-.7-.275t-.7.275L12 10.6L9.1 7.7q-.275-.275-.7-.275t-.7.275t-.275.7t.275.7l2.9 2.9l-2.9 2.9q-.275.275-.275.7t.275.7t.7.275t.7-.275zm0 8.6q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8"/></svg>
                     </button>  
                 </div><div class="thirdInteractiveBox">
                     <div class="boxHeader">
@@ -41,8 +44,9 @@ import Layout from "../layouts/Layout.astro"
                         
                     </div>
                     <button class="content">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="148" height="148" viewBox="0 0 24 24"><path fill="#043263" d="m12.2 13l-.9.9q-.275.275-.275.7t.275.7t.7.275t.7-.275l2.6-2.6q.3-.3.3-.7t-.3-.7l-2.6-2.6q-.275-.275-.7-.275t-.7.275t-.275.7t.275.7l.9.9H9q-.425 0-.712.288T8 12t.288.713T9 13zm-.2 9q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" id="siguienteBtn" width="148" height="148" viewBox="0 0 24 24"><path fill="#043263" d="m12.2 13l-.9.9q-.275.275-.275.7t.275.7t.7.275t.7-.275l2.6-2.6q.3-.3.3-.7t-.3-.7l-2.6-2.6q-.275-.275-.7-.275t-.7.275t-.275.7t.275.7l.9.9H9q-.425 0-.712.288T8 12t.288.713T9 13zm-.2 9q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8"/></svg>
                     </button>  
+                    <button onclick="GenerarTicket()">Generar Ticket</button>
                 </div>
             </div>
         </section>
@@ -52,7 +56,7 @@ import Layout from "../layouts/Layout.astro"
             let JWTToken = localStorage.getItem('token');
             const TituloNombre = document.querySelector('#nombre');
             if(JWTToken == null || JWTToken == undefined){
-                window.location.href = "/index";
+                window.location.href = "/Index";
             }
             else{
                 let decodedToken = parseJwt(JWTToken);
@@ -60,7 +64,10 @@ import Layout from "../layouts/Layout.astro"
                 if(Rol != "Cajero" && Rol != "Admin" || Rol == null || Rol == undefined){
                     window.location.href = "/Index";
                 }
-                let IdUsuario = decodedToken.id;
+                let IdUsuario = decodedToken.Id;
+                if(IdUsuario != null || IdUsuario != undefined){
+                    localStorage.setItem('IdUsuario', IdUsuario);
+                }
                 let Nombre = decodedToken.unique_name;
                 TituloNombre.textContent = Nombre;
                 console.log(parseJwt(JWTToken));
@@ -74,30 +81,118 @@ import Layout from "../layouts/Layout.astro"
             }
         </script>
         <script is:inline>
+            const TicketsArray = [];
+            let TicketActual;
+            const TicketTurnoText = document.querySelector('.ticketTurno');
+            TicketTurnoText.textContent = "Vacío";
+            const TurnosPendientesText = document.querySelector('.turnosPendientes');
+            TurnosPendientesText.textContent = TicketsArray.length;
+            const SiguienteBtn = document.querySelector('#siguienteBtn');
+            
+            SiguienteBtn.addEventListener('click', async function(){
+                SiguienteTicket();
+            });
+
             const connection = new signalR.HubConnectionBuilder()
-                .withUrl("https://localhost:7069/tickets")
+                .withUrl("https://atbapi.websitos256.com/tickets",{
+                    skipNegotiaton:true,
+                    transport: signalR.HttpTransportType.WebSockets
+                })
+                .withAutomaticReconnect()
                 .configureLogging(signalR.LogLevel.Information)
                 .build();
+
+
+            connection.on("GenerarTicket", (ticket) => {
+                console.log(`Nuevo ticket en espera: ${ticket}`);
+                if(TicketsArray.includes(ticket)){
+                    console.log(`Ticket ya existe`);
+                    return;
+                }
+                TicketsArray.push(ticket);
+                TurnosPendientesText.textContent = TicketsArray.length;
+            });
+
+            connection.on("AtenderCliente", (ticket) => {
+                console.log(ticket);
+                if(TicketActual != ticket){
+                    TicketActual = ticket;
+                }
+            });
+
             async function IniciarConexion(){
                 try {
                     await connection.start();
-                    console.log("Conexión establecida");
+                    if(connection.state == "Connected"){
+                        try{
+                            await connection.invoke("AgregarCajero");
+                        }
+                        catch(error){
+                            console.log(error);
+                        }
+                    }
                 } catch (error) {
                     console.log(error);
+                }
+            }
+            async function SiguienteTicket(){
+                if(TicketsArray.length > 0){
+                    if(connection.state != "Connected"){
+                        console.log(`No hay conexión`);
+                        return;
+                    }
+                    console.log(`Atendiendo ticket`);
+                    let TicketActual = TicketsArray.shift();
+                    TurnosPendientesText.textContent = TicketsArray.length;
+                    TicketTurnoText.textContent = TicketActual;
+                    try{
+                        let IdCajero = localStorage.getItem('IdUsuario');
+                        console.log(IdCajero);
+                        IdCajero = parseInt(IdCajero);
+                        await connection.invoke("AtenderCliente", IdCajero);
+                    }
+                    catch(error){
+                        console.log(error);
+                    }
+                }
+                else{
+                    TicketTurnoText.textContent = "Vacío";
+                    TurnosPendientesText.textContent = TicketsArray.length;
+                }
+            }
+            async function CancelarTicket(){
+                if(connection.state != "Connected"){
+                    console.log(`No hay conexión`);
+                    return;
+                }
+                if(TicketActual == null || TicketActual == undefined){
+                    console.log(`No hay ticket actual`);
+                    return;
+                }
+                else{
+                    try{
+                        let IdCajero = localStorage.getItem('IdUsuario');
+                        IdCajero = parseInt(IdCajero);
+                        let IdTurno = TicketActual.id;
+                        await connection.invoke("ClienteCancelar",IdTurno, IdCajero);
+                    }
+                    catch(error){
+                        console.log(error);
+                    }
                 }
             }
             connection.onclose(async () => {
                 await IniciarConexion();
             });
             IniciarConexion();
+            async function GenerarTicket(){
+                try{
+                    await connection.invoke("GenerarTicket");
+                }
+                catch(error){
+                    console.log(error);
+                }
+            }
         </script>
 </main>
-<footer>
-
-</footer>
-</Layout>
-    </main>
-    <footer>
-    
-    </footer>
 </Layout>

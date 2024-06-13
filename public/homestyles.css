@@ -62,7 +62,7 @@ button{
     flex-direction: column;
     justify-content: center;
     align-items: center; 
-    margin-top: 10%;   
+    margin-top: 5%;   
 }
 section,div{
     margin: 0;
@@ -76,7 +76,7 @@ section,div{
 }
 .ticketTurno{
     color: #072146;
-    font-size: 5.5em;
+    font-size: 4.5em;
     text-align: center;
 
 }
