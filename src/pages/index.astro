@@ -14,7 +14,7 @@ import Layout from '../layouts/Layout.astro';
             <button type="submit" class="submit">Iniciar Sesión</button>
         </form>
     </main>
-    <script>
+    <script is:inline>
         const ApiUrl = "https://atbapi.websitos256.com/api/";
         document.querySelector("form").addEventListener("submit", (e) => {
             e.preventDefault();
@@ -38,7 +38,7 @@ import Layout from '../layouts/Layout.astro';
             
             if(response.status == 200){
                 let JWTToken = await response.text();
-                localStorage.setItem("token",JWTToken);
+                sessionStorage.setItem("token",JWTToken);
                 window.location.href = "/home";
             }
             else{
