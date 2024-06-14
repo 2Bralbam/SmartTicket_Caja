@@ -102,7 +102,7 @@ import Layout from "../layouts/Layout.astro"
             });
 
             const connection = new signalR.HubConnectionBuilder()
-                .withUrl("https://atbapi.websitos256.com/tickets",{
+                .withUrl("https://atb.websitos256.com/tickets",{
                     skipNegotiaton:true,
                     transport: signalR.HttpTransportType.WebSockets
                 })
