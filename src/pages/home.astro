@@ -46,7 +46,6 @@ import Layout from "../layouts/Layout.astro"
                     <button class="content">
                         <svg xmlns="http://www.w3.org/2000/svg" id="siguienteBtn" width="148" height="148" viewBox="0 0 24 24"><path fill="#043263" d="m12.2 13l-.9.9q-.275.275-.275.7t.275.7t.7.275t.7-.275l2.6-2.6q.3-.3.3-.7t-.3-.7l-2.6-2.6q-.275-.275-.7-.275t-.7.275t-.275.7t.275.7l.9.9H9q-.425 0-.712.288T8 12t.288.713T9 13zm-.2 9q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8"/></svg>
                     </button>  
-                    <button onclick="GenerarTicket()">Generar Ticket</button>
                 </div>
             </div>
         </section>
@@ -71,6 +70,7 @@ import Layout from "../layouts/Layout.astro"
                     }
                     let Nombre = decodedToken.unique_name;
                     TituloNombre.textContent = Nombre;
+                    localStorage.setItem('NombreUsuario', Nombre);
                     console.log(parseJwt(JWTToken));
                     
                 }
@@ -110,13 +110,17 @@ import Layout from "../layouts/Layout.astro"
                 .configureLogging(signalR.LogLevel.Information)
                 .build();
 
-
+            connection.reconnect(function(){
+                window.location.reload();
+            });
             connection.on("GenerarTicket", (ticket) => {
                 console.log(`Nuevo ticket en espera: ${ticket}`);
                 if(TicketsArray.includes(ticket)){
                     console.log(`Ticket ya existe`);
                     return;
                 }
+                console.log(`Agregando ticket a la lista`);
+                console.log(ticket);
                 TicketsArray.push(ticket);
                 TurnosPendientesText.textContent = TicketsArray.length;
             });
@@ -150,7 +154,8 @@ import Layout from "../layouts/Layout.astro"
                         return;
                     }
                     console.log(`Atendiendo ticket`);
-                    let TicketActual = TicketsArray.shift();
+                    TicketActual = TicketsArray.shift();
+                    console.log(TicketActual);
                     TurnosPendientesText.textContent = TicketsArray.length;
                     TicketTurnoText.textContent = TicketActual;
                     try{
@@ -158,6 +163,15 @@ import Layout from "../layouts/Layout.astro"
                         console.log(IdCajero);
                         IdCajero = parseInt(IdCajero);
                         await connection.invoke("AtenderCliente", IdCajero);
+                        
+                        NombreUsuario = localStorage.getItem('NombreUsuario');
+                        let ActualizarTablaDTO = {
+                            IdCajero: IdCajero,
+                            NombreCaja: NombreUsuario,
+                            NumeroTurno: TicketActual
+                        };
+                        console.log(ActualizarTablaDTO);
+                        await connection.invoke("ActualizarTabla", ActualizarTablaDTO);
                     }
                     catch(error){
                         console.log(error);
@@ -181,8 +195,13 @@ import Layout from "../layouts/Layout.astro"
                     try{
                         let IdCajero = localStorage.getItem('IdUsuario');
                         IdCajero = parseInt(IdCajero);
-                        let IdTurno = TicketActual.id;
+                        let IdTurno = TicketActual;
+                        TicketActual = null;
+                        TicketTurnoText.textContent = "Vacío";
+                        console.log(IdTurno);
+                        console.log(IdCajero);
                         await connection.invoke("ClienteCancelar",IdTurno, IdCajero);
+
                     }
                     catch(error){
                         console.log(error);
