@@ -134,8 +134,8 @@ import Layout from "../layouts/Layout.astro"
 
             connection.on("AtenderCliente", (ticket) => {
                 console.log(ticket);
-                if(TicketActual != ticket){
-                    TicketActual=ticket;
+                if(TicketActual != ticket && ticket != null && ticket != undefined){
+                    TicketActual=ticket.numeroTurno;
                     TicketTurnoText.textContent = ticket.numeroTurno;
                 }
             });
@@ -184,7 +184,7 @@ import Layout from "../layouts/Layout.astro"
                         let dto = {
                             IdCajero: parseInt(IdCajero),
                             NombreCaja: NombreCaja,
-                            NumeroTurno: TicketActual.numeroTurno
+                            NumeroTurno: TicketActual
                         };
                         console.log(dto);
                         await connection.invoke("ActualizarTabla", dto);
@@ -196,6 +196,7 @@ import Layout from "../layouts/Layout.astro"
                 else{
                     TicketTurnoText.textContent = "Vacío";
                     TurnosPendientesText.textContent = TicketsArray.length;
+                    TicketActual = null;
                 }
             }
             async function CancelarTicket(){
