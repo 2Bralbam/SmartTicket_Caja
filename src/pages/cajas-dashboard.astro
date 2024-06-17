@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://kit.fontawesome.com/208814b38b.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/208814b38b.js" crossorigin="anonymous">
+import { string } from "astro/zod";
+</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -49,9 +51,11 @@
     }
 
     let Tabla = document.querySelector("table");
+    let CajerosArray = [];
+    let CajerosTurnos = [];
 
     const connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://atb.websitos256.com/tickets",{
+    .withUrl("https://atbapi.websitos256.com/tickets",{
         skipNegotiaton:true,
         transport: signalR.HttpTransportType.WebSockets
     })
@@ -60,10 +64,30 @@
     .build();
 
     connection.on("ActualizarTabla", (message) => {
-        console.log(message);
-        
-        
+    console.log(message);
+    let IdCajero = message.idCajero;
+    if(!CajerosArray.includes(IdCajero)){
+        // Si el cajero no existe en el array, lo agrega
+        CajerosArray.push(IdCajero);
+        // Crea un nuevo tr porque no existe
+        let tr = document.createElement("tr");
+        tr.setAttribute("id", IdCajero);
+        tr.innerHTML = `<td class="cajaName">${IdCajero}</td>
+                        <td>${message.numeroTurno}</td>`;
+        Tabla.appendChild(tr);
+    } else {
+        // Si el cajero ya existe en el array, actualiza el turno
+            console.log("Ya existe el cajero");
+            let ExisteTr = document.getElementById(IdCajero);
+            if(ExisteTr){
+                let innerTd = ExisteTr.querySelector("td:not(.cajaName)");
+                innerTd.textContent = message.numeroTurno;
+            }
+        }
     });
+
+
+
     async function IniciarConexion(){
                 try {
                     await connection.start();

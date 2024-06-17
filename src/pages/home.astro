@@ -102,7 +102,7 @@ import Layout from "../layouts/Layout.astro"
             });
 
             const connection = new signalR.HubConnectionBuilder()
-                .withUrl("https://atb.websitos256.com/tickets",{
+                .withUrl("https://atbapi.websitos256.com/tickets",{
                     skipNegotiaton:true,
                     transport: signalR.HttpTransportType.WebSockets
                 })
@@ -131,7 +131,12 @@ import Layout from "../layouts/Layout.astro"
                     TicketActual = ticket;
                 }
             });
-
+            connection.on("ClienteCancelar", (ticket) => {
+                console.log(`Ticket cancelado: ${ticket}`);
+                if(TicketsArray.includes(ticket)){
+                    TicketsArray.splice(TicketsArray.indexOf(ticket), 1);
+                }
+            });
             async function IniciarConexion(){
                 try {
                     await connection.start();
@@ -166,9 +171,9 @@ import Layout from "../layouts/Layout.astro"
                         
                         NombreUsuario = localStorage.getItem('NombreUsuario');
                         let ActualizarTablaDTO = {
-                            IdCajero: IdCajero,
-                            NombreCaja: NombreUsuario,
-                            NumeroTurno: TicketActual
+                            idcajero: parseInt(IdCajero),
+                            nombrecaja: NombreUsuario,
+                            numeroturno: TicketActual
                         };
                         console.log(ActualizarTablaDTO);
                         await connection.invoke("ActualizarTabla", ActualizarTablaDTO);
@@ -200,7 +205,7 @@ import Layout from "../layouts/Layout.astro"
                         TicketTurnoText.textContent = "Vacío";
                         console.log(IdTurno);
                         console.log(IdCajero);
-                        await connection.invoke("ClienteCancelar",IdTurno, IdCajero);
+                        await connection.invoke("ClienteCancelar",IdTurno);
 
                     }
                     catch(error){
