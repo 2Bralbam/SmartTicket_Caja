@@ -73,7 +73,7 @@ import { string } from "astro/zod";
         let tr = document.createElement("tr");
         tr.setAttribute("id", IdCajero);
         tr.innerHTML = `<td class="cajaName">${IdCajero}</td>
-                        <td>${message.numeroTurno}</td>`;
+                        <td id="idTurno">${message.numeroTurno}</td>`;
         Tabla.appendChild(tr);
     } else {
         // Si el cajero ya existe en el array, actualiza el turno
@@ -81,7 +81,16 @@ import { string } from "astro/zod";
             let ExisteTr = document.getElementById(IdCajero);
             if(ExisteTr){
                 let innerTd = ExisteTr.querySelector("td:not(.cajaName)");
-                innerTd.textContent = message.numeroTurno;
+                 console.log(innerTd);
+                let currentTurno = innerTd.textContent;
+                console.log(currentTurno);
+                if(currentTurno == message.numeroTurno){
+                    innerTd.textContent = "Vacío";
+                }
+                else{
+                    innerTd.textContent = message.numeroTurno;
+
+                }
             }
         }
     });

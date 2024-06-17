@@ -6,7 +6,7 @@ import Layout from "../layouts/Layout.astro"
     <main>
         <div class="infoContainer">
             <h2 class="welcomeTitle">Bienvenido <h2 class="nombre" id="nombre">Nombre</h2></h2>   
-            <h3>Te encuentras en la caja 3</h3>
+            <h3 class="CajaText">Te encuentras en la caja 3</h3>
         </div>
         <section class="boxContainer">
             <div class="InteractiveBox">
@@ -52,6 +52,7 @@ import Layout from "../layouts/Layout.astro"
         
         <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.7/signalr.min.js" is:inline></script>
         <script is:inline>
+            let CajaText = document.querySelector('.CajaText');
             try{
                 let JWTToken = sessionStorage.getItem('token');
                 const TituloNombre = document.querySelector('#nombre');
@@ -60,6 +61,7 @@ import Layout from "../layouts/Layout.astro"
                 }
                 else{
                     let decodedToken = parseJwt(JWTToken);
+                    console.log(decodedToken)
                     let Rol = decodedToken.role;
                     if(Rol != "Cajero" && Rol != "Admin" || Rol == null || Rol == undefined){
                         window.location.href = "/index.html";
@@ -73,6 +75,9 @@ import Layout from "../layouts/Layout.astro"
                     localStorage.setItem('NombreUsuario', Nombre);
                     console.log(parseJwt(JWTToken));
                     
+                    let cajaId =decodedToken.NombreCaja;
+                    CajaText.innerHTML = `Te encuentras en la caja ${cajaId}`;
+                    localStorage.setItem('NombreCaja',cajaId);
                 }
                 function parseJwt(token) {
                     const base64Url = token.split('.')[1];
@@ -97,6 +102,7 @@ import Layout from "../layouts/Layout.astro"
             TurnosPendientesText.textContent = TicketsArray.length;
             const SiguienteBtn = document.querySelector('#siguienteBtn');
             
+            
             SiguienteBtn.addEventListener('click', async function(){
                 SiguienteTicket();
             });
@@ -110,8 +116,9 @@ import Layout from "../layouts/Layout.astro"
                 .configureLogging(signalR.LogLevel.Information)
                 .build();
 
-            connection.reconnect(function(){
-                window.location.reload();
+            connection.onreconnected(async function(ConnectionId){
+                console.log("Usuario reconectado");
+                await connection.invoke("AgregarCajero");
             });
             connection.on("GenerarTicket", (ticket) => {
                 console.log(`Nuevo ticket en espera: ${ticket}`);
@@ -128,18 +135,22 @@ import Layout from "../layouts/Layout.astro"
             connection.on("AtenderCliente", (ticket) => {
                 console.log(ticket);
                 if(TicketActual != ticket){
-                    TicketActual = ticket;
+                    TicketActual=ticket;
+                    TicketTurnoText.textContent = ticket.numeroTurno;
                 }
             });
             connection.on("ClienteCancelar", (ticket) => {
                 console.log(`Ticket cancelado: ${ticket}`);
                 if(TicketsArray.includes(ticket)){
                     TicketsArray.splice(TicketsArray.indexOf(ticket), 1);
+                    TurnosPendientesText.textContent = TicketsArray.length;
                 }
             });
             async function IniciarConexion(){
                 try {
-                    await connection.start();
+                    if(connection.state == "Disconnected"){
+                        await connection.start();
+                    }
                     if(connection.state == "Connected"){
                         try{
                             await connection.invoke("AgregarCajero");
@@ -162,21 +173,21 @@ import Layout from "../layouts/Layout.astro"
                     TicketActual = TicketsArray.shift();
                     console.log(TicketActual);
                     TurnosPendientesText.textContent = TicketsArray.length;
-                    TicketTurnoText.textContent = TicketActual;
+                    TicketTurnoText.textContent = TicketActual.numeroTurno;
                     try{
                         let IdCajero = localStorage.getItem('IdUsuario');
                         console.log(IdCajero);
                         IdCajero = parseInt(IdCajero);
                         await connection.invoke("AtenderCliente", IdCajero);
                         
-                        NombreUsuario = localStorage.getItem('NombreUsuario');
-                        let ActualizarTablaDTO = {
-                            idcajero: parseInt(IdCajero),
-                            nombrecaja: NombreUsuario,
-                            numeroturno: TicketActual
+                        NombreCaja = localStorage.getItem('NombreCaja');
+                        let dto = {
+                            IdCajero: parseInt(IdCajero),
+                            NombreCaja: NombreCaja,
+                            NumeroTurno: TicketActual.numeroTurno
                         };
-                        console.log(ActualizarTablaDTO);
-                        await connection.invoke("ActualizarTabla", ActualizarTablaDTO);
+                        console.log(dto);
+                        await connection.invoke("ActualizarTabla", dto);
                     }
                     catch(error){
                         console.log(error);
@@ -198,15 +209,27 @@ import Layout from "../layouts/Layout.astro"
                 }
                 else{
                     try{
+                        console.log("Cancelando: ");
+                        console.log(TicketActual.numeroTurno);
                         let IdCajero = localStorage.getItem('IdUsuario');
+                        NombreCaja = localStorage.getItem('NombreCaja');
                         IdCajero = parseInt(IdCajero);
+                        let dto = {
+                            IdCajero: parseInt(IdCajero),
+                            NombreCaja: NombreCaja,
+                            NumeroTurno: TicketActual.numeroTurno
+                        };
                         let IdTurno = TicketActual;
-                        TicketActual = null;
                         TicketTurnoText.textContent = "Vacío";
+                        console.log("Turno:");
                         console.log(IdTurno);
                         console.log(IdCajero);
-                        await connection.invoke("ClienteCancelar",IdTurno);
-
+                        await connection.invoke("ActualizarTabla", dto);
+                        await connection.invoke("ClienteCancelar",IdTurno.numeroTurno);
+                        await connection.invoke("AtenderCliente", IdCajero);
+                        TicketActual = null;
+                        TicketTurnoText.textContent = "Vacío";
+                        TurnosPendientesText.textContent = TicketsArray.length;
                     }
                     catch(error){
                         console.log(error);
