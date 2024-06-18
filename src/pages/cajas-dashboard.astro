@@ -33,7 +33,7 @@ import { string } from "astro/zod";
                 <p>Tiempo de espera aproximado.</p>
             </div>
             <div>
-                <p>1 Hora</p>
+                <p class="tiempoEspera">0</p>
             </div>
         </section>
     </div>
@@ -50,6 +50,30 @@ import { string } from "astro/zod";
         }
     }
 
+    async function DescargarData(){
+        try{
+            let url = "https://atbapi.websitos256.com/api/";
+            let response = await fetch(url + "estadisticas", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json; charset=UTF-8"
+            }
+            });
+            if(response.status == 200){
+                let tiempoEsperaText = document.querySelector(".tiempoEspera");    
+                let Json = await response.json();
+                console.log(Json);
+                tiempoEsperaText.innerHTML = Json.tiempoPromedioDeEspera ?? '0';
+            }
+
+        }
+        catch(ex){
+            console.log(ex);
+        }
+    }
+
+    DescargarData();
+
     let Tabla = document.querySelector("table");
     let CajerosArray = [];
     let CajerosTurnos = [];
@@ -64,6 +88,12 @@ import { string } from "astro/zod";
     .build();
 
     connection.on("ActualizarTabla", (message) => {
+    try{
+        DescargarData();
+    }
+    catch{
+        console.log("Error al recibir mensaje y descargar data");
+    }
     console.log(message);
     let IdCajero = message.idCajero;
     if(!CajerosArray.includes(IdCajero)){
