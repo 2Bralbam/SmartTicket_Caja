@@ -78,6 +78,14 @@ import Layout from "../layouts/Layout.astro"
                     let cajaId =decodedToken.NombreCaja;
                     CajaText.innerHTML = `Te encuentras en la caja ${cajaId}`;
                     localStorage.setItem('NombreCaja',cajaId);
+                    let CajaNum = cajaId.replace("Caja","");
+                    try{
+                        let CajaNumInt = parseInt(CajaNum);
+                        sessionStorage.setItem('CajaId', CajaNumInt);
+                    }
+                    catch(error){
+                        console.log(error);
+                    }
                 }
                 function parseJwt(token) {
                     const base64Url = token.split('.')[1];
@@ -121,6 +129,9 @@ import Layout from "../layouts/Layout.astro"
                 await connection.invoke("AgregarCajero");
             });
             connection.on("GenerarTicket", (ticket) => {
+                if(ticket == "El banco esta cerrado"){
+                    return;
+                }
                 console.log(`Nuevo ticket en espera: ${ticket}`);
                 if(TicketsArray.includes(ticket)){
                     console.log(`Ticket ya existe`);
@@ -133,10 +144,25 @@ import Layout from "../layouts/Layout.astro"
             });
 
             connection.on("AtenderCliente", (ticket) => {
-                console.log(ticket);
-                if(TicketActual != ticket && ticket != null && ticket != undefined){
-                    TicketActual=ticket.numeroTurno;
-                    TicketTurnoText.textContent = ticket.numeroTurno;
+                try{
+                    console.log(ticket);
+                    if(TicketActual != ticket && ticket != null && ticket != undefined){
+                        TicketActual=ticket.numeroTurno;
+                        TicketTurnoText.textContent = ticket.numeroTurno;
+                        if(TicketsArray.includes(ticket.numeroTurno)){
+                            TicketsArray.splice(TicketsArray.indexOf(ticket), 1);
+                            TurnosPendientesText.textContent = TicketsArray.length;
+                        }
+                    }
+                    if(ticket == null || ticket == undefined){
+                        TicketTurnoText.textContent = "Vacío";
+                        TurnosPendientesText.textContent = TicketsArray.length;
+                        TicketActual = null;
+                    }
+
+                }
+                catch(error){
+                    console.log(error);
                 }
             });
             connection.on("ClienteCancelar", (ticket) => {
@@ -144,6 +170,19 @@ import Layout from "../layouts/Layout.astro"
                 if(TicketsArray.includes(ticket)){
                     TicketsArray.splice(TicketsArray.indexOf(ticket), 1);
                     TurnosPendientesText.textContent = TicketsArray.length;
+                }
+            });
+            connection.on("ActualizarTabla", (dto) => {
+                try{
+                    let TicketAtendido = dto.numeroTurno;
+                    if(TicketsArray.includes(TicketAtendido)){
+                        TicketsArray.splice(TicketsArray.indexOf(TicketAtendido), 1);
+                        TurnosPendientesText.textContent = TicketsArray.length;
+                    }
+
+                }
+                catch(error){
+                    console.log(error);
                 }
             });
             async function IniciarConexion(){
@@ -164,16 +203,12 @@ import Layout from "../layouts/Layout.astro"
                 }
             }
             async function SiguienteTicket(){
-                if(TicketsArray.length > 0){
+                if(true){
                     if(connection.state != "Connected"){
                         console.log(`No hay conexión`);
                         return;
                     }
                     console.log(`Atendiendo ticket`);
-                    TicketActual = TicketsArray.shift();
-                    console.log(TicketActual);
-                    TurnosPendientesText.textContent = TicketsArray.length;
-                    TicketTurnoText.textContent = TicketActual.numeroTurno;
                     try{
                         let IdCajero = localStorage.getItem('IdUsuario');
                         console.log(IdCajero);
