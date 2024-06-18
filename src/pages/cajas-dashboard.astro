@@ -86,7 +86,7 @@ import { string } from "astro/zod";
                 let currentTurno = innerTd.textContent;
                 console.log(currentTurno);
                 if(currentTurno == message.numeroTurno){
-                    innerTd.textContent = "Vacío";
+                    innerTd.textContent = "";
                 }
                 else{
                     innerTd.textContent = message.numeroTurno;
@@ -144,7 +144,7 @@ nav {
 
 .container{
     display: flex;
-    height: 95%;
+    height: 100%;
 }
 
 table {
@@ -171,6 +171,7 @@ table {
 
 section {
     width: 50%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     background-color:#043263;
