@@ -148,6 +148,15 @@ import Layout from "../layouts/Layout.astro"
                 if(TicketActual != ticket && ticket != null && ticket != undefined){
                     TicketActual=ticket.numeroTurno;
                     TicketTurnoText.textContent = ticket.numeroTurno;
+                    if(TicketsArray.includes(ticket.numeroTurno)){
+                        TicketsArray.splice(TicketsArray.indexOf(ticket), 1);
+                        TurnosPendientesText.textContent = TicketsArray.length;
+                    }
+                }
+                if(ticket == null || ticket == undefined){
+                    TicketTurnoText.textContent = "Vacío";
+                    TurnosPendientesText.textContent = TicketsArray.length;
+                    TicketActual = null;
                 }
             });
             connection.on("ClienteCancelar", (ticket) => {
@@ -175,16 +184,12 @@ import Layout from "../layouts/Layout.astro"
                 }
             }
             async function SiguienteTicket(){
-                if(TicketsArray.length > 0){
+                if(true){
                     if(connection.state != "Connected"){
                         console.log(`No hay conexión`);
                         return;
                     }
                     console.log(`Atendiendo ticket`);
-                    TicketActual = TicketsArray.shift();
-                    console.log(TicketActual);
-                    TurnosPendientesText.textContent = TicketsArray.length;
-                    TicketTurnoText.textContent = TicketActual.numeroTurno;
                     try{
                         let IdCajero = localStorage.getItem('IdUsuario');
                         console.log(IdCajero);
