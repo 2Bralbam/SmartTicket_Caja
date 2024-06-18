@@ -144,19 +144,25 @@ import Layout from "../layouts/Layout.astro"
             });
 
             connection.on("AtenderCliente", (ticket) => {
-                console.log(ticket);
-                if(TicketActual != ticket && ticket != null && ticket != undefined){
-                    TicketActual=ticket.numeroTurno;
-                    TicketTurnoText.textContent = ticket.numeroTurno;
-                    if(TicketsArray.includes(ticket.numeroTurno)){
-                        TicketsArray.splice(TicketsArray.indexOf(ticket), 1);
-                        TurnosPendientesText.textContent = TicketsArray.length;
+                try{
+                    console.log(ticket);
+                    if(TicketActual != ticket && ticket != null && ticket != undefined){
+                        TicketActual=ticket.numeroTurno;
+                        TicketTurnoText.textContent = ticket.numeroTurno;
+                        if(TicketsArray.includes(ticket.numeroTurno)){
+                            TicketsArray.splice(TicketsArray.indexOf(ticket), 1);
+                            TurnosPendientesText.textContent = TicketsArray.length;
+                        }
                     }
+                    if(ticket == null || ticket == undefined){
+                        TicketTurnoText.textContent = "Vacío";
+                        TurnosPendientesText.textContent = TicketsArray.length;
+                        TicketActual = null;
+                    }
+
                 }
-                if(ticket == null || ticket == undefined){
-                    TicketTurnoText.textContent = "Vacío";
-                    TurnosPendientesText.textContent = TicketsArray.length;
-                    TicketActual = null;
+                catch(error){
+                    console.log(error);
                 }
             });
             connection.on("ClienteCancelar", (ticket) => {
@@ -164,6 +170,19 @@ import Layout from "../layouts/Layout.astro"
                 if(TicketsArray.includes(ticket)){
                     TicketsArray.splice(TicketsArray.indexOf(ticket), 1);
                     TurnosPendientesText.textContent = TicketsArray.length;
+                }
+            });
+            connection.on("ActualizarTabla", (dto) => {
+                try{
+                    let TicketAtendido = dto.numeroTurno;
+                    if(TicketsArray.includes(TicketAtendido)){
+                        TicketsArray.splice(TicketsArray.indexOf(TicketAtendido), 1);
+                        TurnosPendientesText.textContent = TicketsArray.length;
+                    }
+
+                }
+                catch(error){
+                    console.log(error);
                 }
             });
             async function IniciarConexion(){
