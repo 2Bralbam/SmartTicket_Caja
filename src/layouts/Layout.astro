@@ -26,7 +26,7 @@ const { title } = Astro.props;
 				<h1>Smart Ticket</h1>
 			</a>
 			<div>
-				<a href="/index.html" id="closeSesion">Cerrar Sesión</a>]
+				<a id="closeSesion">Cerrar Sesión</a>
 			</div>
 		</header>
 		<slot transition:animate={fade({ duration: '0.4s' })}/>
@@ -34,6 +34,14 @@ const { title } = Astro.props;
 </html>
 <script is:inline>
 	const closeSesion = document.getElementById('closeSesion');
+	closeSesion.addEventListener('click', () => {
+		let token = sessionStorage.getItem('token');
+		if(token){
+			CerrarSesion(token);
+		}
+		
+	
+	});
 	let userId = localStorage.getItem('IdUsuario');
 	if (userId) {
 		closeSesion.style.visibility = 'visible';
@@ -41,11 +49,29 @@ const { title } = Astro.props;
 	else {
 		closeSesion.style.visibility = 'hidden';
 	}
-	closeSesion.addEventListener('click', () => {
-		localStorage.removeItem('token');
-		localStorage.removeItem('IdUsuario');
-		window.location.href = '/index.html';
-	});
+	async function CerrarSesion(token){
+		console.log(token)
+		let url = "https://atbapi.websitos256.com/cerrar-sesion";
+		let data = {
+			
+		};
+
+		let response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${token}`
+			},
+			body: JSON.stringify(data)
+		});
+		let result = await response.text();
+		if(response.status == 200){
+			sessionStorage.clear();
+			localStorage.clear();
+			window.location.href = '/index.html';
+		}
+		console.log(result);
+	}
 </script>
 <style is:global>
 	
@@ -63,5 +89,8 @@ const { title } = Astro.props;
 	header {
 		display: flex;
 		justify-content: space-between;
+	}
+	#closeSesion{
+		cursor: pointer;
 	}
 </style>

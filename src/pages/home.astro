@@ -78,6 +78,14 @@ import Layout from "../layouts/Layout.astro"
                     let cajaId =decodedToken.NombreCaja;
                     CajaText.innerHTML = `Te encuentras en la caja ${cajaId}`;
                     localStorage.setItem('NombreCaja',cajaId);
+                    let CajaNum = cajaId.replace("Caja","");
+                    try{
+                        let CajaNumInt = parseInt(CajaNum);
+                        sessionStorage.setItem('CajaId', CajaNumInt);
+                    }
+                    catch(error){
+                        console.log(error);
+                    }
                 }
                 function parseJwt(token) {
                     const base64Url = token.split('.')[1];
@@ -121,6 +129,9 @@ import Layout from "../layouts/Layout.astro"
                 await connection.invoke("AgregarCajero");
             });
             connection.on("GenerarTicket", (ticket) => {
+                if(ticket == "El banco esta cerrado"){
+                    return;
+                }
                 console.log(`Nuevo ticket en espera: ${ticket}`);
                 if(TicketsArray.includes(ticket)){
                     console.log(`Ticket ya existe`);

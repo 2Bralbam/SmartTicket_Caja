@@ -69,10 +69,11 @@ import { string } from "astro/zod";
     if(!CajerosArray.includes(IdCajero)){
         // Si el cajero no existe en el array, lo agrega
         CajerosArray.push(IdCajero);
+        let CajaId = message.nombreCaja.replace("Caja", "");    
         // Crea un nuevo tr porque no existe
         let tr = document.createElement("tr");
         tr.setAttribute("id", IdCajero);
-        tr.innerHTML = `<td class="cajaName">${IdCajero}</td>
+        tr.innerHTML = `<td class="cajaName">${CajaId}</td>
                         <td id="idTurno">${message.numeroTurno}</td>`;
         Tabla.appendChild(tr);
     } else {
